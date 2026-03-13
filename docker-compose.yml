@@ -1,0 +1,62 @@
+
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: scheduler_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: scheduler_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./schedulerAPI
+      dockerfile: Dockerfile.dev
+    container_name: scheduler_api
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      NODE_ENV: development
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: scheduler_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres_password
+      JWT_SECRET: your-dev-secret-key
+      FRONTEND_URL: http://localhost:5173
+    volumes:
+      - ./schedulerAPI/src:/app/src
+    depends_on:
+      db:
+        condition: service_healthy
+
+  ui:
+    build:
+      context: ./schedulerUI
+      dockerfile: Dockerfile
+    container_name: scheduler_ui
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:3001/api
+    volumes:
+      - ./schedulerUI/src:/app/src
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
