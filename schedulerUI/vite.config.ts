@@ -19,12 +19,13 @@ export default defineConfig({
 
   // Development server configuration
   server: {
-    port: 5174,
-    host: 'localhost',
+    port: 5173,
+    strictPort: true, // fail instead of auto-incrementing if port is in use
+    host: '0.0.0.0', // critical for Docker - listen on all interfaces
     open: false,
     hmr: {
-      host: 'localhost',
-      port: 5174,
+      host: 'localhost', // HMR: browser connects to localhost
+      port: 5173,
     },
   },
 

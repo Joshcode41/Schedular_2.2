@@ -43,7 +43,7 @@ router.get(
     params.push(limit, offset);
 
     const result = await pool.query(query, params);
-    const users = result.rows.map((user) => userSerializer.serialize(user));
+    const users = result.rows.map((user: any) => userSerializer.serialize(user));
 
     const { response, statusCode } = successResponse(
       {

@@ -10,6 +10,7 @@ import { Label } from "../components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card";
 import { toast } from "sonner";
 import { useAuth } from "../context/AuthContext";
+import { DarkModeToggle } from "../components/DarkModeToggle";
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -57,7 +58,10 @@ export function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4 relative">
+      <div className="absolute top-4 right-4">
+        <DarkModeToggle size="md" variant="outline" />
+      </div>
       <Card className="w-full max-w-md shadow-xl border-0">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">

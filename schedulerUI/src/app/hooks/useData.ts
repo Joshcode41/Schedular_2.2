@@ -174,3 +174,226 @@ export function useAppointment(id: string) {
 
   return { appointment, loading, error };
 }
+
+/**
+ * Hook for creating/updating appointments and refetching data
+ */
+export function useAppointmentMutations() {
+  const { token } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const createAppointment = async (data: any) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch('http://localhost:3001/api/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) throw new Error('Failed to create appointment');
+      const result = await response.json();
+      return result.data;
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateAppointment = async (id: string, data: any) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch(`http://localhost:3001/api/appointments/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) throw new Error('Failed to update appointment');
+      const result = await response.json();
+      return result.data;
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cancelAppointment = async (id: string) => {
+    return updateAppointment(id, { status: 'cancelled' });
+  };
+
+  return { createAppointment, updateAppointment, cancelAppointment, loading, error };
+}
+
+/**
+ * Hook for user mutations (create, update, delete)
+ */
+export function useUserMutations() {
+  const { token } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const createUser = async (data: any) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch('http://localhost:3001/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) throw new Error('Failed to create user');
+      const result = await response.json();
+      return result.data;
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateUser = async (id: string, data: any) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch(`http://localhost:3001/api/users/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) throw new Error('Failed to update user');
+      const result = await response.json();
+      return result.data;
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteUser = async (id: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch(`http://localhost:3001/api/users/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error('Failed to delete user');
+      return true;
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { createUser, updateUser, deleteUser, loading, error };
+}
+
+/**
+ * Hook for service centre mutations
+ */
+export function useServiceCentreMutations() {
+  const { token } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const createServiceCentre = async (data: any) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch('http://localhost:3001/api/service-centres', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) throw new Error('Failed to create service centre');
+      const result = await response.json();
+      return result.data;
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateServiceCentre = async (id: string, data: any) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch(`http://localhost:3001/api/service-centres/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) throw new Error('Failed to update service centre');
+      const result = await response.json();
+      return result.data;
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteServiceCentre = async (id: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch(`http://localhost:3001/api/service-centres/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error('Failed to delete service centre');
+      return true;
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { createServiceCentre, updateServiceCentre, deleteServiceCentre, loading, error };
+}

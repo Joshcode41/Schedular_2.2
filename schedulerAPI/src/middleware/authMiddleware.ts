@@ -28,7 +28,7 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
       throw new AppError('Invalid authorization header format. Expected: Bearer <token>', 401, 'UNAUTHORIZED');
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key-change-in-production') as {
       userId: string;
       role: string;
       email?: string;
@@ -53,7 +53,7 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
       return res.status(error.statusCode).json({
         success: false,
         error: error.message,
-        message: error.userMessage || error.message,
+        message: error.code || error.message,
         meta: {
           timestamp: new Date().toISOString(),
           version: '1.0.0',

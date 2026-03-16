@@ -1,4 +1,4 @@
-import { authMiddleware, requireRole } from '../../middleware/authMiddleware';
+import { authMiddleware, requireRole } from '../middleware/authMiddleware';
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 

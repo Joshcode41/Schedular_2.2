@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Separator } from "../components/ui/separator";
 import { toast } from "sonner";
 import { useAuth } from "../context/AuthContext";
+import { DarkModeToggle } from "../components/DarkModeToggle";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -55,7 +56,10 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4 relative">
+      <div className="absolute top-4 right-4">
+        <DarkModeToggle size="md" variant="outline" />
+      </div>
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">

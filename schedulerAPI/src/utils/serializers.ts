@@ -293,12 +293,22 @@ export class PaginationHelper {
  * Error Handler Utility
  */
 export class AppError extends Error {
+  public errors?: Record<string, string[]>;
+  public code?: string;
+
   constructor(
     public message: string,
     public statusCode: number = 500,
-    public errors?: Record<string, string[]>
+    errorOrCode?: Record<string, string[]> | string
   ) {
     super(message);
+    
+    // Support both error objects and error codes
+    if (typeof errorOrCode === 'string') {
+      this.code = errorOrCode;
+    } else if (typeof errorOrCode === 'object') {
+      this.errors = errorOrCode;
+    }
   }
 }
 

@@ -5,21 +5,61 @@ import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
-import { currentUser, getAppointmentsByCustomer } from "../../lib/mockData";
+import { useAppointments } from "../../hooks/useData";
+import { useAuth } from "../../context/AuthContext";
 
 export function CustomerDashboard() {
-  const appointments = getAppointmentsByCustomer(currentUser.id);
-  const upcomingAppointments = appointments.filter(
-    (apt) => apt.status === "pending" || apt.status === "confirmed" || apt.status === "in-progress"
+  const { user } = useAuth();
+  const { appointments, loading, error } = useAppointments();
+
+  // Handle loading state
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[...Array(3)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="pb-3">
+                <div className="h-4 bg-gray-200 rounded w-16 mb-2"></div>
+                <div className="h-8 bg-gray-200 rounded w-12"></div>
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Handle error state
+  if (error) {
+    return (
+      <div className="space-y-4">
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="pt-6">
+            <p className="text-red-800">Error loading appointments: {error}</p>
+            <Button onClick={() => window.location.reload()} className="mt-4">
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Filter appointments by customer and status
+  const customerAppointments = appointments.filter(apt => apt.customer_id === user?.id);
+  const upcomingAppointments = customerAppointments.filter(
+    (apt) => ["pending", "confirmed", "in_progress"].includes(apt.status)
   );
-  const completedAppointments = appointments.filter((apt) => apt.status === "completed");
-  const cancelledAppointments = appointments.filter((apt) => apt.status === "cancelled");
+  const completedAppointments = customerAppointments.filter((apt) => apt.status === "completed");
+  const cancelledAppointments = customerAppointments.filter((apt) => apt.status === "cancelled");
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { label: string; className: string; icon: any }> = {
       pending: { label: "Pending", className: "bg-yellow-100 text-yellow-800", icon: Clock },
       confirmed: { label: "Confirmed", className: "bg-blue-100 text-blue-800", icon: CheckCircle2 },
-      "in-progress": { label: "In Progress", className: "bg-purple-100 text-purple-800", icon: AlertCircle },
+      in_progress: { label: "In Progress", className: "bg-purple-100 text-purple-800", icon: AlertCircle },
       completed: { label: "Completed", className: "bg-green-100 text-green-800", icon: CheckCircle2 },
       cancelled: { label: "Cancelled", className: "bg-red-100 text-red-800", icon: XCircle },
       delayed: { label: "Delayed", className: "bg-orange-100 text-orange-800", icon: AlertCircle },
@@ -39,9 +79,9 @@ export function CustomerDashboard() {
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle className="text-lg">{appointment.serviceType}</CardTitle>
+            <CardTitle className="text-lg">{appointment.service_type}</CardTitle>
             <CardDescription>
-              {appointment.carMake} {appointment.carModel} ({appointment.carYear})
+              {appointment.vehicle_make} {appointment.vehicle_model} ({appointment.vehicle_year})
             </CardDescription>
           </div>
           {getStatusBadge(appointment.status)}
@@ -51,26 +91,16 @@ export function CustomerDashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
           <div className="flex items-center gap-2 text-gray-600">
             <Calendar className="w-4 h-4" />
-            <span>{new Date(appointment.preferredDate).toLocaleDateString()}</span>
+            <span>{new Date(appointment.appointment_date).toLocaleDateString()}</span>
           </div>
           <div className="flex items-center gap-2 text-gray-600">
             <Clock className="w-4 h-4" />
-            <span>{appointment.preferredTime}</span>
+            <span>{appointment.appointment_time || "TBD"}</span>
           </div>
-          <div className="flex items-center gap-2 text-gray-600">
-            <MapPin className="w-4 h-4" />
-            <span>{appointment.serviceCentreName}</span>
-          </div>
-          {appointment.technicianName && (
-            <div className="flex items-center gap-2 text-gray-600">
-              <User className="w-4 h-4" />
-              <span>{appointment.technicianName}</span>
-            </div>
-          )}
         </div>
-        {appointment.remarks && (
+        {appointment.description && (
           <div className="bg-gray-50 rounded-md p-3 text-sm">
-            <p className="text-gray-700">{appointment.remarks}</p>
+            <p className="text-gray-700">{appointment.description}</p>
           </div>
         )}
         <div className="flex gap-2 pt-2">
@@ -81,7 +111,7 @@ export function CustomerDashboard() {
             <Button asChild size="sm" className="flex-1">
               <Link to={`/customer/feedback/${appointment.id}`}>
                 <MessageSquare className="w-4 h-4 mr-1" />
-                Leave Feedback
+                Feedback
               </Link>
             </Button>
           )}
@@ -94,7 +124,7 @@ export function CustomerDashboard() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl">Welcome back, {currentUser.name}</h1>
+          <h1 className="text-3xl">Welcome back, {user?.name}</h1>
           <p className="text-gray-600 mt-1">Manage your car service appointments</p>
         </div>
         <Button asChild size="lg">
@@ -122,7 +152,7 @@ export function CustomerDashboard() {
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Total Bookings</CardDescription>
-            <CardTitle className="text-3xl">{appointments.length}</CardTitle>
+            <CardTitle className="text-3xl">{customerAppointments.length}</CardTitle>
           </CardHeader>
         </Card>
       </div>
